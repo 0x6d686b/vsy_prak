@@ -24,14 +24,19 @@ import java.util.Scanner;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+
+import java.rmi.Naming;
 
 
 public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
@@ -40,7 +45,7 @@ public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final JMenuItem loadExec,open;
+	private final JMenuItem loadExec,connectRMI,open;
   	private final JButton enter;
   	private final JTextField arguments;
   	private final JComboBox history;
@@ -78,12 +83,19 @@ public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
 		menuBar.add(menuFile);
 
 		JMenu menuServer = new JMenu();
-		loadExec = new JMenuItem();
 		menuServer.setText("Server");
+		
+		loadExec = new JMenuItem();
 		loadExec.setText("Load executable");
 		loadExec.addActionListener(this);
+		
+		connectRMI = new JMenuItem();
+		connectRMI.setText("Connect to RMI service");
+		connectRMI.addActionListener(this);
+		
 		open.addActionListener(this);
 		menuServer.add(loadExec);
+		menuServer.add(connectRMI);
 		menuBar.add(menuServer);
 		
 
@@ -146,67 +158,19 @@ public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
 
 	public void	actionPerformed(ActionEvent	e) {
 		if (e.getSource() == loadExec) {
-			FileDialog fd = new FileDialog(this, "Connect");
-			fd.setFile("*Server.class");
-			fd.setDirectory("\\bin\\");
-			fd.setVisible(true);
-			String name = fd.getFile();
-			ServerFactory sf = new ServerFactory();
-			try {
-				command = sf.createServer(name);
-				log("Connected to" + name);
-			} catch (Exception e1) {
-				error("Connect throwed an exception!");
-				e1.printStackTrace();
-			}
-			setTitle("ExBox connected to " + name);
+			loadExec();
 		}
 		if (e.getSource() == open) {
-			FileInputStream fis = null;
-			FileDialog fd = new FileDialog(this, "load");
-			fd.setFile("*.xml");
-			fd.setVisible(true);
-			String name = fd.getFile();
-			StringBuilder text = new StringBuilder();
-		    String NL = System.getProperty("line.separator");
-		    try {
-				fis = new FileInputStream(System.getProperty("user.dir") + "/bin/" + name);
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		    Scanner scanner = new Scanner(fis, "UTF-8");
-		    try {
-		      while (scanner.hasNextLine()){
-		        text.append(scanner.nextLine() + NL);
-		      }
-		    }
-		    finally{
-		      scanner.close();
-		    }
-		    arguments.setText(text.toString());
-		    //log("Loaded " + name + "\n");
+			open();
 		}
 		if (e.getSource() == enter) {
-			try {
-				log("Starting the interpreter ...");
-				interpret(arguments.getText());
-				log("Interpreter returned.");
-				history.addItem(arguments.getText());
-				arguments.setText("");
-			} catch (Exception e1) {
-				error("The interpretor throwed an exception!");
-				e1.printStackTrace();
-			}
+			enter();
 		}
-		
 		if (e.getSource() == history) {
-			try {
-				arguments.setText(history.getSelectedItem().toString());
-			} catch (Exception e1) {
-				error("There were no items in the combobox.");
-				e1.printStackTrace();
-			}
+			history();
+		}
+		if (e.getSource() == connectRMI) {
+			connectRMI();
 		}
 	 }
 
@@ -219,5 +183,93 @@ public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
 
 		// Exit	application.
 		System.exit(0);
+	}
+	
+	private void loadExec() {
+		FileDialog fd = new FileDialog(this, "Connect");
+		fd.setFile("*Server.class");
+		fd.setDirectory("\\bin\\");
+		fd.setVisible(true);
+		String name = fd.getFile();
+		DynamicLoadedClassFactory sf = new DynamicLoadedClassFactory();
+		try {
+			command = sf.createServer(name);
+			log("Connected to" + name);
+		} catch (Exception e1) {
+			error("Connect throwed an exception!");
+			e1.printStackTrace();
+		}
+		setTitle("ExBox connected to " + name);
+	}
+	
+	private void open() {
+		FileInputStream fis = null;
+		FileDialog fd = new FileDialog(this, "load");
+		fd.setFile("*.xml");
+		fd.setVisible(true);
+		String name = fd.getFile();
+		StringBuilder text = new StringBuilder();
+	    String NL = System.getProperty("line.separator");
+	    try {
+			fis = new FileInputStream(System.getProperty("user.dir") + "/bin/" + name);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	    Scanner scanner = new Scanner(fis, "UTF-8");
+	    try {
+	      while (scanner.hasNextLine()){
+	        text.append(scanner.nextLine() + NL);
+	      }
+	    }
+	    finally{
+	      scanner.close();
+	    }
+	    arguments.setText(text.toString());
+	    //log("Loaded " + name + "\n");
+	}
+	
+	private void enter() {
+		try {
+			log("Starting the interpreter ...");
+			interpret(arguments.getText());
+			log("Interpreter returned.");
+			history.addItem(arguments.getText());
+			arguments.setText("");
+		} catch (Exception e1) {
+			error("The interpretor throwed an exception!");
+			e1.printStackTrace();
+		}
+	}
+	
+	private void history() {
+		try {
+			arguments.setText(history.getSelectedItem().toString());
+		} catch (Exception e1) {
+			error("There were no items in the combobox.");
+			e1.printStackTrace();
+		}
+	}
+	
+	private void connectRMI() {
+		JTextField uri = new JTextField();
+		final JComponent[] inputs = new JComponent[] {
+				new JLabel("URI:"),
+				uri
+		};
+		JOptionPane.showMessageDialog(null, inputs, "Enter the URI of the RMI service", JOptionPane.PLAIN_MESSAGE);
+		
+		System.out.println(uri.getText());
+		
+		try { Object newborn = Naming.lookup(uri.getText());
+			if (newborn instanceof CommandInterpreter) {
+				command = (CommandInterpreter) newborn;
+			}
+		} catch (Exception e1) {
+			error("Could not connect to RMI service.");
+			e1.printStackTrace();
+		}
+		
+		setTitle("Connected to RMI: " + uri.getName());
 	}
 }

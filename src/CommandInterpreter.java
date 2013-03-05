@@ -1,17 +1,9 @@
-/** CommandInterpreter 
- Dieses Interface wird von jedem Server implementiert.
- @author E. Mumprecht
- @version 1.0 -- Gerüst für irgendeinen Server
- */ 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
-public interface CommandInterpreter {
+
+public interface CommandInterpreter extends Remote {
+
+   public String interpret(String command) throws RemoteException;
    
-/** interpret  --  
- nimmt eine Kommandozeile, tut irgendetwas gescheites, und berichtet das Resultat.
- @param command Kommandozeile, üblicherweise Kommandowort gefolgt von Argumenten
- @return Resultat, üblicherweise eine oder mehrere Zeilen.
- */
-   
-   public String interpret(String command);
-   
-   }//interface CommandInterpreter
+}
