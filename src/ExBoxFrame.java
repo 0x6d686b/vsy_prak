@@ -40,7 +40,7 @@ public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final JMenuItem connect,open;
+	private final JMenuItem loadExec,open;
   	private final JButton enter;
   	private final JTextField arguments;
   	private final JComboBox history;
@@ -78,12 +78,12 @@ public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
 		menuBar.add(menuFile);
 
 		JMenu menuServer = new JMenu();
-		connect = new JMenuItem();
+		loadExec = new JMenuItem();
 		menuServer.setText("Server");
-		connect.setText("Connect");
-		connect.addActionListener(this);
+		loadExec.setText("Load executable");
+		loadExec.addActionListener(this);
 		open.addActionListener(this);
-		menuServer.add(connect);
+		menuServer.add(loadExec);
 		menuBar.add(menuServer);
 		
 
@@ -145,7 +145,7 @@ public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
 	}
 
 	public void	actionPerformed(ActionEvent	e) {
-		if (e.getSource() == connect) {
+		if (e.getSource() == loadExec) {
 			FileDialog fd = new FileDialog(this, "Connect");
 			fd.setFile("*Server.class");
 			fd.setDirectory("\\bin\\");

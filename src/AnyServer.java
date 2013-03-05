@@ -1,6 +1,6 @@
 /** AnyServer 
  @author E. Mumprecht
- @version 1.0 -- Gerüst für irgendeinen "Server"
+ @version 1.0 -- GerÃ¼st fÃ¼r irgendeinen "Server"
  */ 
 
 public class AnyServer implements CommandInterpreter {
@@ -16,7 +16,7 @@ public class AnyServer implements CommandInterpreter {
       result = new StringBuffer();
       result.append("* Die Eingabe war <");
       result.append(command);
-      result.append(">");
+      result.append(">\n");
       return(result.toString());
       }
    
