@@ -4,6 +4,7 @@ import java.rmi.server.*;
 public class RMI_Echo extends UnicastRemoteObject implements CommandInterpreter  {
 	
 	private StringBuffer result;
+	private int i = 1;
 
 	protected RMI_Echo() throws RemoteException {}
 	
@@ -17,7 +18,9 @@ public class RMI_Echo extends UnicastRemoteObject implements CommandInterpreter 
 		result = new StringBuffer();
 	    result.append("RMI* Die Eingabe war <");
 	    result.append(command);
+	    result.append(" " + i);
 	    result.append(">\n");
+	    i++;
 	    return(result.toString());
 	}
 

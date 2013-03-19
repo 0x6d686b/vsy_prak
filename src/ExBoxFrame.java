@@ -270,6 +270,6 @@ public class ExBoxFrame	extends	JFrame implements ActionListener, ItemListener {
 			e1.printStackTrace();
 		}
 		
-		setTitle("Connected to RMI: " + uri.getName());
+		setTitle("Connected to RMI: " + uri.getText());
 	}
 }
